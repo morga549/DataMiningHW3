@@ -4,8 +4,7 @@ import operator
 import functools
 import sys
 import random
-from collections import defaultdict
-import
+import matplotlib.pyplot as plt
 
 infile = sys.argv[1]
 k = int(sys.argv[2])
@@ -19,9 +18,10 @@ centroids = data[np.random.randint(0, n, k)]
 m = centroids.shape[0]
 
 def dist(a, b):
-    return np.sqrt(np.sum((a-b)**2))
+    return np.linalg.norm(a-b)
 
 assigned = np.zeros((n,1), dtype = data.dtype)
+
 
 i = 0
 while(i < 20):
@@ -40,11 +40,20 @@ while(i < 20):
 
     for x in range(k):
         clusters[x] = assignedPlus[assignedPlus[:,0] == x]
-        newCentroids[x] = np.mean(clusters[x][:, 1:], axis =0)
+        clusters[x] = clusters[x][:, 1:]
+        newCentroids[x] = np.mean(clusters[x][:,:], axis =0)
 
     sigma = sum(dist(centroids[x], newCentroids[x]) for x in range(k))
-    centroids = newCentroids
-    print(sigma)
+    np.copyto(centroids, newCentroids)
+
     if(sigma < 0.001): break
 
     i += 1
+
+if(d == 2):
+    for cluster in clusters:
+        plt.plot(cluster[:, 0], cluster[:, 1], 'o')
+    for centroid in centroids:
+        plt.plot(centroid[0], centroid[1], 'v', markersize = 20)
+    plt.axis('equal')
+    plt.show()
