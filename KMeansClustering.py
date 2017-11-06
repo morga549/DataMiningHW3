@@ -14,7 +14,7 @@ data = np.loadtxt(infile) # load infile text file as numpy ndarray
 n = data.shape[0] # number of data points
 d = data.shape[1] # degree of data points
 
-centroids = data[np.random.randint(0, n, k)] # pick k random datapoints from data
+centroids = data[np.random.randint(0, n, k)] # pick k random datapoints from  data
 
 # calculate euclidean distance
 def dist(a, b):
@@ -22,7 +22,7 @@ def dist(a, b):
 
 # create ndarray of zeros of the same length and datatype as data
 assigned = np.zeros((n,1), dtype = data.dtype)
-
+sigma = 0.0
 i = 0
 while(i < 20):
 
@@ -33,10 +33,10 @@ while(i < 20):
     # for each data point find the closest centroid
     for x in range(n):
         distances = []
-        for y in range(m):
+        for y in range(k):
             distances.append(dist(data[x], centroids[y]))
         assignedPlus[x][0] = np.argmin(distances)
-
+        assigned[x] = np.argmin(distances)
     newCentroids = np.zeros((k, d), dtype = centroids.dtype) # ndarray same dimensions as centroids
 
     # create clusters and calculate their new centroids
@@ -49,11 +49,22 @@ while(i < 20):
     sigma = sum(dist(centroids[x], newCentroids[x]) for x in range(k))
     np.copyto(centroids, newCentroids) #update centroids
 
-    if(sigma < 0.001): break
-
+    if(sigma < 0.001):
+        break
     i += 1
 
-# if data is 2 dimensional plot it
+
+
+output = ""
+for point in assigned:
+    output += str(point) + ", "
+print output
+
+print '\n' + infile + '\n'
+print "Iterations: " + str(i) + '\n'
+print "Sigma: " + str(sigma) + '\n'
+
+# if data is 2 dimensional plot its
 if(d == 2):
     for cluster in clusters:
         plt.plot(cluster[:, 0], cluster[:, 1], 'o')
@@ -61,3 +72,9 @@ if(d == 2):
         plt.plot(centroid[0], centroid[1], 'v', markersize = 20)
     plt.axis('equal')
     plt.show()
+
+
+for x in range(k):
+    print "Cluster: " + str(x)
+    print "Points in cluster: " + str(len(clusters[x]))
+    print "Centroid: " + str(centroids[x]) + '\n'
